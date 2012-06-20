@@ -15,6 +15,9 @@
     NSString            *_path;
     dispatch_queue_t    _queue;
     FMDatabase          *_db;
+#if SQLITE_VERSION_NUMBER >= 3005000
+    int _flags;
+#endif
 }
 
 @property (retain) NSString *path;
@@ -32,6 +35,11 @@
 // NOTE: you can not nest these, since calling it will pull another database out of the pool and you'll get a deadlock.
 // If you need to nest, use FMDatabase's startSavePointWithName:error: instead.
 - (NSError*)inSavePoint:(void (^)(FMDatabase *db, BOOL *rollback))block;
+#endif
+
+#if SQLITE_VERSION_NUMBER >= 3005000
++ (id)databaseQueueWithPath:(NSString*)aPath withFlags:(int)flags;
+- (id)initWithPath:(NSString*)aPath withFlags:(int)flags;
 #endif
 
 @end
