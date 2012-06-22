@@ -249,7 +249,6 @@
     
 #ifndef NS_BLOCK_ASSERTIONS
     if (_crashOnErrors) {
-        abort();
         NSAssert1(false, @"The FMDatabase %@ is currently in use.", self);
     }
 #endif
@@ -263,7 +262,6 @@
         
     #ifndef NS_BLOCK_ASSERTIONS
         if (_crashOnErrors) {
-            abort();
             NSAssert1(false, @"The FMDatabase %@ is not open.", self);
         }
     #endif
@@ -537,7 +535,8 @@
                     NSLog(@"DB Path: %@", _databasePath);
 #ifndef NS_BLOCK_ASSERTIONS
                     if (_crashOnErrors) {
-                        abort();
+                        sqlite3_finalize(pStmt);
+                        _isExecutingStatement = NO;
                         NSAssert2(false, @"DB Error: %d \"%@\"", [self lastErrorCode], [self lastErrorMessage]);
                     }
 #endif
@@ -716,7 +715,8 @@
                     NSLog(@"DB Path: %@", _databasePath);
 #ifndef NS_BLOCK_ASSERTIONS
                     if (_crashOnErrors) {
-                        abort();
+                        sqlite3_finalize(pStmt);
+                        _isExecutingStatement = NO;
                         NSAssert2(false, @"DB Error: %d \"%@\"", [self lastErrorCode], [self lastErrorMessage]);
                     }
 #endif
