@@ -170,9 +170,11 @@
     
     FMDatabase *db = [self db];
     
-    block(db);
-    
-    [self pushDatabaseBackInPool:db];
+    @try {
+        block(db);
+    } @finally {
+        [self pushDatabaseBackInPool: db];
+    }
 }
 
 - (void)beginTransaction:(BOOL)useDeferred withBlock:(void (^)(FMDatabase *db, BOOL *rollback))block {
