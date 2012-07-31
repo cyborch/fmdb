@@ -869,6 +869,7 @@
     
     if (closeErrorCode != SQLITE_OK) {
         NSLog(@"Unknown error finalizing or resetting statement (%d: %s)", closeErrorCode, sqlite3_errmsg(_db));
+        NSAssert(NO, @"Unknown error finalizing or resetting statement (%d: %s)", closeErrorCode, sqlite3_errmsg(_db));
         NSLog(@"DB Query: %@", sql);
     }
     

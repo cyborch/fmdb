@@ -171,6 +171,10 @@
     FMDatabase *db = [self db];
     
     @try {
+#if DEBUG
+        db.crashOnErrors = YES;
+        db.logsErrors = YES;
+#endif
         block(db);
     } @finally {
         [self pushDatabaseBackInPool: db];
@@ -190,8 +194,17 @@
         [db beginTransaction];
     }
     
-    
-    block(db, &shouldRollback);
+#if DEBUG
+    db.crashOnErrors = YES;
+    db.logsErrors = YES;
+#endif
+
+    @try {
+        block(db, &shouldRollback);
+    }
+    @catch (NSException *exception) {
+        shouldRollback = YES;
+    }
     
     if (shouldRollback) {
         [db rollback];

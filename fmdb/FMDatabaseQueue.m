@@ -168,7 +168,14 @@
             [[self database] beginTransaction];
         }
         
-        block([self database], &shouldRollback);
+        FMDatabase *db = [self database];
+        
+#if DEBUG
+        db.crashOnErrors = YES;
+        db.logsErrors = YES;
+#endif
+        
+        block(db, &shouldRollback);
         
         if (shouldRollback) {
             [[self database] rollback];
