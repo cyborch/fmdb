@@ -854,25 +854,41 @@
         FMDBRelease(cachedStmt);
     }
     
-    int closeErrorCode;
-    
-    if (cachedStmt) {
-        [cachedStmt setUseCount:[cachedStmt useCount] + 1];
-        closeErrorCode = sqlite3_reset(pStmt);
-    }
-    else {
-        /* Finalize the virtual machine. This releases all memory and other
-         ** resources allocated by the sqlite3_prepare() call above.
-         */
-        closeErrorCode = sqlite3_finalize(pStmt);
-    }
+    numberOfRetries = 0;
+
+    int closeErrorCode = SQLITE_ERROR;
+    do {
+        if (cachedStmt) {
+            [cachedStmt setUseCount:[cachedStmt useCount] + 1];
+            closeErrorCode = sqlite3_reset(pStmt);
+        } else {
+            /* Finalize the virtual machine. This releases all memory and other
+             ** resources allocated by the sqlite3_prepare() call above.
+             */
+            closeErrorCode = sqlite3_finalize(pStmt);
+        }
+        
+        if (SQLITE_BUSY == rc || SQLITE_LOCKED == rc || SQLITE_IOERR == rc) {
+            // this will happen if the db is locked, like if we are doing an update or insert.
+            // in that case, retry the step... and maybe wait just 10 milliseconds.
+            retry = YES;
+            usleep(20);
+            
+            if (_busyRetryTimeout && (numberOfRetries++ > _busyRetryTimeout)) {
+                NSLog(@"%s:%d Database busy (%@)", __FUNCTION__, __LINE__, [self databasePath]);
+                NSLog(@"Database busy");
+                retry = NO;
+            }
+        }
+        
+    } while (retry);
     
     if (closeErrorCode != SQLITE_OK) {
         NSLog(@"Unknown error finalizing or resetting statement (%d: %s)", closeErrorCode, sqlite3_errmsg(_db));
         NSAssert(NO, @"Unknown error finalizing or resetting statement (%d: %s)", closeErrorCode, sqlite3_errmsg(_db));
         NSLog(@"DB Query: %@", sql);
     }
-    
+
     _isExecutingStatement = NO;
     return (rc == SQLITE_DONE || rc == SQLITE_OK);
 }
