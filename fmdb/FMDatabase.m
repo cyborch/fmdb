@@ -515,7 +515,7 @@
             retry   = NO;
             rc      = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &pStmt, 0);
             
-            if (SQLITE_BUSY == rc || SQLITE_LOCKED == rc) {
+            if (SQLITE_BUSY == rc || SQLITE_LOCKED == rc || SQLITE_IOERR == rc) {
                 retry = YES;
                 usleep(20);
                 
