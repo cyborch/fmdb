@@ -118,20 +118,22 @@
         _db = FMDBReturnRetained([FMDatabase databaseWithPath:_path]);
         
 #if SQLITE_VERSION_NUMBER >= 3005000
-        if (_flags)
+        if (_flags) {
             if (![_db openWithFlags: _flags]) {
                 NSLog(@"FMDatabaseQueue could not reopen database for path %@", _path);
                 FMDBRelease(_db);
                 _db  = 0x00;
                 return 0x00;
             }
-        else
+        } else
 #endif
+        {
         if (![_db open]) {
             NSLog(@"FMDatabaseQueue could not reopen database for path %@", _path);
             FMDBRelease(_db);
             _db  = 0x00;
             return 0x00;
+        }
         }
     }
     
