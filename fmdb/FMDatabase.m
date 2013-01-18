@@ -147,6 +147,7 @@
     while (retry);
     
     _db = nil;
+    _isExecutingStatement = NO;
     return YES;
 }
 
