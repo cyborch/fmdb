@@ -1,6 +1,8 @@
 # FMDB
 This is an Objective-C wrapper around SQLite: http://sqlite.org/
 
+Building FMDB project requires installation of universal framework templates. Universal framework project can be found at the following url: https://github.com/kstenerud/iOS-Universal-Framework/.
+
 ## The FMDB Mailing List:
 http://groups.google.com/group/fmdb
 
